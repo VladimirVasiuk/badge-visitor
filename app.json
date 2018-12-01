@@ -3,11 +3,16 @@
   "scripts": {
   },
   "env": {
+    "CLOUDAMQP_URL": "amqp://winiszle:HcRc8Li2ToR6BOWqd06oxjmfy2IuAMFl@otter.rmq.cloudamqp.com/winiszle"
   },
   "formation": {
   },
   "addons": [
+    "cleardb:ignite"
   ],
   "buildpacks": [
+    {
+      "url": "heroku/gradle"
+    }
   ]
 }
