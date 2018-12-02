@@ -1,0 +1,53 @@
+package com.galvanize.badgevisitor.entity;
+
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.Date;
+
+@Data
+@NoArgsConstructor
+public class VisitorFronEnd {
+
+    private String phoneNumber;        // populated by user
+    private String firstName;          // populated by user
+    private String lastName;           // populated by user
+    private String company;            // populated by user
+    private String hostName;           // populated by user
+    private String hostPhone;          // populated by user
+    private String purposeOfVisit;     // populated by user
+    private String checkedInBy;        // populated by system
+    private String checkedOutBy;       // populated by system
+    private String reasonForDeletion;  // populated by guard
+    private String badgeNumber;        // populated by guard
+
+    private Date registerDate;         // populated by system
+    private Date checkedInDate;        // populated by system
+    private Date checkedOutDate;       // populated by system
+    private Long milliSecondsSinceRegistration;
+
+    private Boolean active;            // populated by system/guard
+    private VisitStatus status;        // populated by system
+    //private VisitorType visitorType;   // populated by user
+
+    @Builder
+    public VisitorFronEnd(String phoneNumber, String firstName, String lastName, String company, String hostName, String hostPhone, String purposeOfVisit, String checkedInBy, String checkedOutBy, String reasonForDeletion, String badgeNumber, Date registerDate, Date checkedInDate, Date checkedOutDate, Boolean active, VisitStatus status) {
+        this.phoneNumber = phoneNumber;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.company = company;
+        this.hostName = hostName;
+        this.hostPhone = hostPhone;
+        this.purposeOfVisit = purposeOfVisit;
+        this.checkedInBy = checkedInBy;
+        this.checkedOutBy = checkedOutBy;
+        this.reasonForDeletion = reasonForDeletion;
+        this.badgeNumber = badgeNumber;
+        this.registerDate = registerDate;
+        this.checkedInDate = checkedInDate;
+        this.checkedOutDate = checkedOutDate;
+        this.active = active;
+        this.status = status;
+    }
+}
