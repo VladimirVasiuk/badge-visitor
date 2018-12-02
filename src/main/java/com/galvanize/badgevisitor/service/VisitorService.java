@@ -3,6 +3,9 @@ package com.galvanize.badgevisitor.service;
 import com.galvanize.badgevisitor.entity.Visitor;
 import com.galvanize.badgevisitor.entity.VisitorExtended;
 import com.galvanize.badgevisitor.entity.VisitorFronEnd;
+import com.galvanize.badgevisitor.exception.VisitorCannotCheckoutException;
+import com.galvanize.badgevisitor.exception.VisitorNotCreatedException;
+import com.galvanize.badgevisitor.exception.VisitorNotFoundException;
 import com.galvanize.badgevisitor.repository.VisitorRepository;
 import lombok.Data;
 import org.slf4j.Logger;
@@ -11,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Data
 @Service
@@ -36,27 +41,73 @@ public class VisitorService {
 
     @Transactional
     public Boolean registerVisitor(VisitorFronEnd visitorFronEnd) {
-        return false;
+        Long phoneNumber = phoneNumberFromString(visitorFronEnd.getPhoneNumber());
+        if (phoneNumber == null)
+            throw new IllegalArgumentException("Phone number is null");
+        VisitorExtended visitorExtended = visitorExtendedFromVisitorFrontEnd(visitorFronEnd);
+        Visitor visitor = visitorFromVisitorFrontEnd(visitorFronEnd);
+
+        repository.save(visitor);
+        try {
+            senderService.sendMessage(exchangeName, verifyRoutingKey, visitorExtended);
+        } catch (RuntimeException e) {
+            LOGGER.error("Visitor wasn't create. RabbitMQ wrong.");
+            throw new VisitorNotCreatedException("Visitor wasn't create. RabbitMQ wrong.");
+        }
+        return true;
     }
 
     public VisitorFronEnd findByPhoneNumber(String phone) {
-        return null;
+        if (phone == null)
+            throw new IllegalArgumentException("Phone number is null");
+        Optional<Visitor> optVisitor = repository.findById(phoneNumberFromString(phone));
+        if (!optVisitor.isPresent())
+            throw new VisitorNotFoundException(String.format("Visitor wasn't found by phone: %s", phone));
+        return visitorFrontEndFromVisitor(optVisitor.get());
     }
 
     public VisitorFronEnd checkout(VisitorFronEnd visitorFronEnd) {
-        return null;
+        Long phoneNumber = phoneNumberFromString(visitorFronEnd.getPhoneNumber());
+        if (phoneNumber == null)
+            throw new IllegalArgumentException("Phone number is null");
+        VisitorExtended visitorExtended = visitorExtendedFromVisitorFrontEnd(visitorFronEnd);
+        try {
+            senderService.sendMessage(exchangeName, checkoutRoutingKey, visitorExtended);
+        } catch (RuntimeException e) {
+            LOGGER.error("Visitor wasn't create. RabbitMQ wrong.");
+            throw new VisitorCannotCheckoutException("Visitor cannot checkout. RabbitMQ wrong.");
+        }
+        return visitorFronEnd;
     }
 
     Visitor visitorFromVisitorFrontEnd(VisitorFronEnd visitorFronEnd) {
-        return null;
+        return Visitor.builder()
+                .phoneNumber(phoneNumberFromString(visitorFronEnd.getPhoneNumber()))
+                .firstName(visitorFronEnd.getFirstName())
+                .lastName(visitorFronEnd.getLastName())
+                .company(visitorFronEnd.getCompany())
+                .build();
     }
 
     VisitorExtended visitorExtendedFromVisitorFrontEnd(VisitorFronEnd visitorFronEnd) {
-        return null;
+        return VisitorExtended.builder()
+                .phoneNumber(phoneNumberFromString(visitorFronEnd.getPhoneNumber()))
+                .firstName(visitorFronEnd.getFirstName())
+                .lastName(visitorFronEnd.getLastName())
+                .company(visitorFronEnd.getCompany())
+                .hostName(visitorFronEnd.getHostName())
+                .hostPhone(phoneNumberFromString(visitorFronEnd.getHostPhone()))
+                .purposeOfVisit(visitorFronEnd.getPurposeOfVisit())
+                .build();
     }
 
     VisitorFronEnd visitorFrontEndFromVisitor(Visitor visitor) {
-        return null;
+        return VisitorFronEnd.builder()
+                .phoneNumber(phoneNumberStringFormat(visitor.getPhoneNumber()))
+                .firstName(visitor.getFirstName())
+                .lastName(visitor.getLastName())
+                .company(visitor.getCompany())
+                .build();
     }
 
 
