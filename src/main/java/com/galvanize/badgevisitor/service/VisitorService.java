@@ -2,7 +2,7 @@ package com.galvanize.badgevisitor.service;
 
 import com.galvanize.badgevisitor.entity.Visitor;
 import com.galvanize.badgevisitor.entity.VisitorExtended;
-import com.galvanize.badgevisitor.entity.VisitorFronEnd;
+import com.galvanize.badgevisitor.entity.VisitorFrontEnd;
 import com.galvanize.badgevisitor.exception.VisitorCannotCheckoutException;
 import com.galvanize.badgevisitor.exception.VisitorNotCreatedException;
 import com.galvanize.badgevisitor.exception.VisitorNotFoundException;
@@ -40,12 +40,12 @@ public class VisitorService {
 
 
     @Transactional
-    public Boolean registerVisitor(VisitorFronEnd visitorFronEnd) {
-        Long phoneNumber = phoneNumberFromString(visitorFronEnd.getPhoneNumber());
+    public Boolean registerVisitor(VisitorFrontEnd visitorFrontEnd) {
+        Long phoneNumber = phoneNumberFromString(visitorFrontEnd.getPhoneNumber());
         if (phoneNumber == null)
             throw new IllegalArgumentException("Phone number is null");
-        VisitorExtended visitorExtended = visitorExtendedFromVisitorFrontEnd(visitorFronEnd);
-        Visitor visitor = visitorFromVisitorFrontEnd(visitorFronEnd);
+        VisitorExtended visitorExtended = visitorExtendedFromVisitorFrontEnd(visitorFrontEnd);
+        Visitor visitor = visitorFromVisitorFrontEnd(visitorFrontEnd);
 
         repository.save(visitor);
         try {
@@ -57,7 +57,7 @@ public class VisitorService {
         return true;
     }
 
-    public VisitorFronEnd findByPhoneNumber(String phone) {
+    public VisitorFrontEnd findByPhoneNumber(String phone) {
         if (phone == null)
             throw new IllegalArgumentException("Phone number is null");
         Optional<Visitor> optVisitor = repository.findById(phoneNumberFromString(phone));
@@ -66,43 +66,43 @@ public class VisitorService {
         return visitorFrontEndFromVisitor(optVisitor.get());
     }
 
-    public VisitorFronEnd checkout(VisitorFronEnd visitorFronEnd) {
-        Long phoneNumber = phoneNumberFromString(visitorFronEnd.getPhoneNumber());
+    public VisitorFrontEnd checkout(VisitorFrontEnd visitorFrontEnd) {
+        Long phoneNumber = phoneNumberFromString(visitorFrontEnd.getPhoneNumber());
         if (phoneNumber == null)
             throw new IllegalArgumentException("Phone number is null");
-        VisitorExtended visitorExtended = visitorExtendedFromVisitorFrontEnd(visitorFronEnd);
+        VisitorExtended visitorExtended = visitorExtendedFromVisitorFrontEnd(visitorFrontEnd);
         try {
             senderService.sendMessage(exchangeName, checkoutRoutingKey, visitorExtended);
         } catch (RuntimeException e) {
             LOGGER.error("Visitor wasn't create. RabbitMQ wrong.");
             throw new VisitorCannotCheckoutException("Visitor cannot checkout. RabbitMQ wrong.");
         }
-        return visitorFronEnd;
+        return visitorFrontEnd;
     }
 
-    Visitor visitorFromVisitorFrontEnd(VisitorFronEnd visitorFronEnd) {
+    Visitor visitorFromVisitorFrontEnd(VisitorFrontEnd visitorFrontEnd) {
         return Visitor.builder()
-                .phoneNumber(phoneNumberFromString(visitorFronEnd.getPhoneNumber()))
-                .firstName(visitorFronEnd.getFirstName())
-                .lastName(visitorFronEnd.getLastName())
-                .company(visitorFronEnd.getCompany())
+                .phoneNumber(phoneNumberFromString(visitorFrontEnd.getPhoneNumber()))
+                .firstName(visitorFrontEnd.getFirstName())
+                .lastName(visitorFrontEnd.getLastName())
+                .company(visitorFrontEnd.getCompany())
                 .build();
     }
 
-    VisitorExtended visitorExtendedFromVisitorFrontEnd(VisitorFronEnd visitorFronEnd) {
+    VisitorExtended visitorExtendedFromVisitorFrontEnd(VisitorFrontEnd visitorFrontEnd) {
         return VisitorExtended.builder()
-                .phoneNumber(phoneNumberFromString(visitorFronEnd.getPhoneNumber()))
-                .firstName(visitorFronEnd.getFirstName())
-                .lastName(visitorFronEnd.getLastName())
-                .company(visitorFronEnd.getCompany())
-                .hostName(visitorFronEnd.getHostName())
-                .hostPhone(phoneNumberFromString(visitorFronEnd.getHostPhone()))
-                .purposeOfVisit(visitorFronEnd.getPurposeOfVisit())
+                .phoneNumber(phoneNumberFromString(visitorFrontEnd.getPhoneNumber()))
+                .firstName(visitorFrontEnd.getFirstName())
+                .lastName(visitorFrontEnd.getLastName())
+                .company(visitorFrontEnd.getCompany())
+                .hostName(visitorFrontEnd.getHostName())
+                .hostPhone(phoneNumberFromString(visitorFrontEnd.getHostPhone()))
+                .purposeOfVisit(visitorFrontEnd.getPurposeOfVisit())
                 .build();
     }
 
-    VisitorFronEnd visitorFrontEndFromVisitor(Visitor visitor) {
-        return VisitorFronEnd.builder()
+    VisitorFrontEnd visitorFrontEndFromVisitor(Visitor visitor) {
+        return VisitorFrontEnd.builder()
                 .phoneNumber(phoneNumberStringFormat(visitor.getPhoneNumber()))
                 .firstName(visitor.getFirstName())
                 .lastName(visitor.getLastName())

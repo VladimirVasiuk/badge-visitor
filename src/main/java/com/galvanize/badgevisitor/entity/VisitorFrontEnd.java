@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Data
 @NoArgsConstructor
-public class VisitorFronEnd {
+public class VisitorFrontEnd {
 
     private String phoneNumber;        // populated by user
     private String firstName;          // populated by user
@@ -32,7 +32,7 @@ public class VisitorFronEnd {
     //private VisitorType visitorType;   // populated by user
 
     @Builder
-    public VisitorFronEnd(String phoneNumber, String firstName, String lastName, String company, String hostName, String hostPhone, String purposeOfVisit, String checkedInBy, String checkedOutBy, String reasonForDeletion, String badgeNumber, Date registerDate, Date checkedInDate, Date checkedOutDate, Boolean active, VisitStatus status) {
+    public VisitorFrontEnd(String phoneNumber, String firstName, String lastName, String company, String hostName, String hostPhone, String purposeOfVisit, String checkedInBy, String checkedOutBy, String reasonForDeletion, String badgeNumber, Date registerDate, Date checkedInDate, Date checkedOutDate, Boolean active, VisitStatus status) {
         this.phoneNumber = phoneNumber;
         this.firstName = firstName;
         this.lastName = lastName;

@@ -2,7 +2,7 @@ package com.galvanize.badgevisitor.service;
 
 import com.galvanize.badgevisitor.entity.Visitor;
 import com.galvanize.badgevisitor.entity.VisitorExtended;
-import com.galvanize.badgevisitor.entity.VisitorFronEnd;
+import com.galvanize.badgevisitor.entity.VisitorFrontEnd;
 import com.galvanize.badgevisitor.exception.VisitorCannotCheckoutException;
 import com.galvanize.badgevisitor.exception.VisitorNotCreatedException;
 import com.galvanize.badgevisitor.exception.VisitorNotFoundException;
@@ -31,7 +31,7 @@ public class VisitorServiceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void registerVisitorPhoneNullTest() {
-        VisitorFronEnd mockVisitorFrontEnd = VisitorFronEnd.builder().build();
+        VisitorFrontEnd mockVisitorFrontEnd = VisitorFrontEnd.builder().build();
         Visitor mockVisitor = service.visitorFromVisitorFrontEnd(mockVisitorFrontEnd);
         VisitorExtended visitorExtended = service.visitorExtendedFromVisitorFrontEnd(mockVisitorFrontEnd);
         when(repository.save(mockVisitor)).thenReturn(mockVisitor);
@@ -45,7 +45,7 @@ public class VisitorServiceTest {
 
     @Test
     public void registerVisitor() {
-        VisitorFronEnd mockVisitorFrontEnd = VisitorFronEnd.builder().phoneNumber("(555)111-2233").build();
+        VisitorFrontEnd mockVisitorFrontEnd = VisitorFrontEnd.builder().phoneNumber("(555)111-2233").build();
         Visitor mockVisitor = service.visitorFromVisitorFrontEnd(mockVisitorFrontEnd);
         VisitorExtended visitorExtended = service.visitorExtendedFromVisitorFrontEnd(mockVisitorFrontEnd);
         when(repository.save(mockVisitor)).thenReturn(mockVisitor);
@@ -59,7 +59,7 @@ public class VisitorServiceTest {
 
     @Test(expected = VisitorNotCreatedException.class)
     public void registerVisitorWithoutRabbitMQTest() {
-        VisitorFronEnd mockVisitorFrontEnd = VisitorFronEnd.builder().phoneNumber("(555)111-2233").build();
+        VisitorFrontEnd mockVisitorFrontEnd = VisitorFrontEnd.builder().phoneNumber("(555)111-2233").build();
         Visitor mockVisitor = service.visitorFromVisitorFrontEnd(mockVisitorFrontEnd);
         VisitorExtended visitorExtended = service.visitorExtendedFromVisitorFrontEnd(mockVisitorFrontEnd);
         when(repository.save(mockVisitor)).thenReturn(mockVisitor);
@@ -92,7 +92,7 @@ public class VisitorServiceTest {
 
     @Test
     public void checkoutTest() {
-        VisitorFronEnd mockVisitorFrontEnd = VisitorFronEnd.builder().phoneNumber("(555)111-2233").build();
+        VisitorFrontEnd mockVisitorFrontEnd = VisitorFrontEnd.builder().phoneNumber("(555)111-2233").build();
         VisitorExtended visitorExtended = service.visitorExtendedFromVisitorFrontEnd(mockVisitorFrontEnd);
         doNothing().when(amqpSenderService)
                 .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), visitorExtended);
@@ -103,7 +103,7 @@ public class VisitorServiceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void checkoutPhoneNullTest() {
-        VisitorFronEnd mockVisitorFrontEnd = VisitorFronEnd.builder().build();
+        VisitorFrontEnd mockVisitorFrontEnd = VisitorFrontEnd.builder().build();
         VisitorExtended visitorExtended = service.visitorExtendedFromVisitorFrontEnd(mockVisitorFrontEnd);
         doNothing().when(amqpSenderService)
                 .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), visitorExtended);
@@ -114,7 +114,7 @@ public class VisitorServiceTest {
 
     @Test(expected = VisitorCannotCheckoutException.class)
     public void checkoutWithoutRabbitMQTest() {
-        VisitorFronEnd mockVisitorFrontEnd = VisitorFronEnd.builder().phoneNumber("(555)111-2233").build();
+        VisitorFrontEnd mockVisitorFrontEnd = VisitorFrontEnd.builder().phoneNumber("(555)111-2233").build();
         VisitorExtended visitorExtended = service.visitorExtendedFromVisitorFrontEnd(mockVisitorFrontEnd);
         doThrow(RuntimeException.class).when(amqpSenderService)
                 .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), visitorExtended);
