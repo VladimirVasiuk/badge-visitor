@@ -1,7 +1,6 @@
 package com.galvanize.badgevisitor.service;
 
 import com.galvanize.badgevisitor.entity.Visitor;
-import com.galvanize.badgevisitor.entity.VisitorExtended;
 import com.galvanize.badgevisitor.entity.VisitorFrontEnd;
 import com.galvanize.badgevisitor.exception.VisitorCannotCheckoutException;
 import com.galvanize.badgevisitor.exception.VisitorNotCreatedException;
@@ -44,12 +43,11 @@ public class VisitorService {
         Long phoneNumber = phoneNumberFromString(visitorFrontEnd.getPhoneNumber());
         if (phoneNumber == null)
             throw new IllegalArgumentException("Phone number is null");
-        VisitorExtended visitorExtended = visitorExtendedFromVisitorFrontEnd(visitorFrontEnd);
         Visitor visitor = visitorFromVisitorFrontEnd(visitorFrontEnd);
 
         repository.save(visitor);
         try {
-            senderService.sendMessage(exchangeName, verifyRoutingKey, visitorExtended);
+            senderService.sendMessage(exchangeName, verifyRoutingKey, visitorFrontEnd);
         } catch (RuntimeException e) {
             LOGGER.error("Visitor wasn't create. RabbitMQ wrong.");
             throw new VisitorNotCreatedException("Visitor wasn't create. RabbitMQ wrong.");
@@ -70,9 +68,8 @@ public class VisitorService {
         Long phoneNumber = phoneNumberFromString(visitorFrontEnd.getPhoneNumber());
         if (phoneNumber == null)
             throw new IllegalArgumentException("Phone number is null");
-        VisitorExtended visitorExtended = visitorExtendedFromVisitorFrontEnd(visitorFrontEnd);
         try {
-            senderService.sendMessage(exchangeName, checkoutRoutingKey, visitorExtended);
+            senderService.sendMessage(exchangeName, checkoutRoutingKey, visitorFrontEnd);
         } catch (RuntimeException e) {
             LOGGER.error("Visitor wasn't create. RabbitMQ wrong.");
             throw new VisitorCannotCheckoutException("Visitor cannot checkout. RabbitMQ wrong.");
@@ -86,18 +83,6 @@ public class VisitorService {
                 .firstName(visitorFrontEnd.getFirstName())
                 .lastName(visitorFrontEnd.getLastName())
                 .company(visitorFrontEnd.getCompany())
-                .build();
-    }
-
-    VisitorExtended visitorExtendedFromVisitorFrontEnd(VisitorFrontEnd visitorFrontEnd) {
-        return VisitorExtended.builder()
-                .phoneNumber(phoneNumberFromString(visitorFrontEnd.getPhoneNumber()))
-                .firstName(visitorFrontEnd.getFirstName())
-                .lastName(visitorFrontEnd.getLastName())
-                .company(visitorFrontEnd.getCompany())
-                .hostName(visitorFrontEnd.getHostName())
-                .hostPhone(phoneNumberFromString(visitorFrontEnd.getHostPhone()))
-                .purposeOfVisit(visitorFrontEnd.getPurposeOfVisit())
                 .build();
     }
 

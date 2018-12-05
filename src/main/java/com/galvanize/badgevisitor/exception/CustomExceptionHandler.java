@@ -13,7 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(VisitorNotFoundException.class)
-    protected ResponseEntity<CustomException> handlePersonNotFoundException(VisitorNotFoundException ex, WebRequest request) {
+    protected ResponseEntity<CustomException> handleVisitorNotFoundException(VisitorNotFoundException ex, WebRequest request) {
         return new ResponseEntity<>(new CustomException(
                 HttpStatus.NOT_FOUND.value(),
                 ex.getLocalizedMessage(),
@@ -21,7 +21,15 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(VisitorNotCreatedException.class)
-    protected ResponseEntity<CustomException> handlePersonNotCreatedException(VisitorNotCreatedException ex, WebRequest request) {
+    protected ResponseEntity<CustomException> handleVisitorNotCreatedException(VisitorNotCreatedException ex, WebRequest request) {
+        return new ResponseEntity<>(new CustomException(
+                HttpStatus.EXPECTATION_FAILED.value(),
+                ex.getLocalizedMessage(),
+                request.getDescription(false)), HttpStatus.EXPECTATION_FAILED);
+    }
+
+    @ExceptionHandler(VisitorCannotCheckoutException.class)
+    protected ResponseEntity<CustomException> handleVisitorCannotCheckoutException(VisitorCannotCheckoutException ex, WebRequest request) {
         return new ResponseEntity<>(new CustomException(
                 HttpStatus.EXPECTATION_FAILED.value(),
                 ex.getLocalizedMessage(),

@@ -1,7 +1,6 @@
 package com.galvanize.badgevisitor.service;
 
 import com.galvanize.badgevisitor.entity.Visitor;
-import com.galvanize.badgevisitor.entity.VisitorExtended;
 import com.galvanize.badgevisitor.entity.VisitorFrontEnd;
 import com.galvanize.badgevisitor.exception.VisitorCannotCheckoutException;
 import com.galvanize.badgevisitor.exception.VisitorNotCreatedException;
@@ -33,42 +32,39 @@ public class VisitorServiceTest {
     public void registerVisitorPhoneNullTest() {
         VisitorFrontEnd mockVisitorFrontEnd = VisitorFrontEnd.builder().build();
         Visitor mockVisitor = service.visitorFromVisitorFrontEnd(mockVisitorFrontEnd);
-        VisitorExtended visitorExtended = service.visitorExtendedFromVisitorFrontEnd(mockVisitorFrontEnd);
         when(repository.save(mockVisitor)).thenReturn(mockVisitor);
         doNothing().when(amqpSenderService)
-                .sendMessage(service.getExchangeName(), service.getVerifyRoutingKey(), visitorExtended);
+                .sendMessage(service.getExchangeName(), service.getVerifyRoutingKey(), mockVisitorFrontEnd);
         service.registerVisitor(mockVisitorFrontEnd);
         verify(repository, times(1)).save(mockVisitor);
         verify(amqpSenderService, times(1))
-                .sendMessage(service.getExchangeName(), service.getVerifyRoutingKey(), visitorExtended);
+                .sendMessage(service.getExchangeName(), service.getVerifyRoutingKey(), mockVisitorFrontEnd);
     }
 
     @Test
     public void registerVisitor() {
         VisitorFrontEnd mockVisitorFrontEnd = VisitorFrontEnd.builder().phoneNumber("(555)111-2233").build();
         Visitor mockVisitor = service.visitorFromVisitorFrontEnd(mockVisitorFrontEnd);
-        VisitorExtended visitorExtended = service.visitorExtendedFromVisitorFrontEnd(mockVisitorFrontEnd);
         when(repository.save(mockVisitor)).thenReturn(mockVisitor);
         doNothing().when(amqpSenderService)
-                .sendMessage(service.getExchangeName(), service.getVerifyRoutingKey(), visitorExtended);
+                .sendMessage(service.getExchangeName(), service.getVerifyRoutingKey(), mockVisitorFrontEnd);
         service.registerVisitor(mockVisitorFrontEnd);
         verify(repository, times(1)).save(mockVisitor);
         verify(amqpSenderService, times(1))
-                .sendMessage(service.getExchangeName(), service.getVerifyRoutingKey(), visitorExtended);
+                .sendMessage(service.getExchangeName(), service.getVerifyRoutingKey(), mockVisitorFrontEnd);
     }
 
     @Test(expected = VisitorNotCreatedException.class)
     public void registerVisitorWithoutRabbitMQTest() {
         VisitorFrontEnd mockVisitorFrontEnd = VisitorFrontEnd.builder().phoneNumber("(555)111-2233").build();
         Visitor mockVisitor = service.visitorFromVisitorFrontEnd(mockVisitorFrontEnd);
-        VisitorExtended visitorExtended = service.visitorExtendedFromVisitorFrontEnd(mockVisitorFrontEnd);
         when(repository.save(mockVisitor)).thenReturn(mockVisitor);
         doThrow(RuntimeException.class).when(amqpSenderService)
-                .sendMessage(service.getExchangeName(), service.getVerifyRoutingKey(), visitorExtended);
+                .sendMessage(service.getExchangeName(), service.getVerifyRoutingKey(), mockVisitorFrontEnd);
         service.registerVisitor(mockVisitorFrontEnd);
         verify(repository, times(1)).save(mockVisitor);
         verify(amqpSenderService, times(1))
-                .sendMessage(service.getExchangeName(), service.getVerifyRoutingKey(), visitorExtended);
+                .sendMessage(service.getExchangeName(), service.getVerifyRoutingKey(), mockVisitorFrontEnd);
     }
 
     @Test
@@ -93,33 +89,30 @@ public class VisitorServiceTest {
     @Test
     public void checkoutTest() {
         VisitorFrontEnd mockVisitorFrontEnd = VisitorFrontEnd.builder().phoneNumber("(555)111-2233").build();
-        VisitorExtended visitorExtended = service.visitorExtendedFromVisitorFrontEnd(mockVisitorFrontEnd);
         doNothing().when(amqpSenderService)
-                .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), visitorExtended);
+                .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), mockVisitorFrontEnd);
         service.checkout(mockVisitorFrontEnd);
         verify(amqpSenderService, times(1))
-                .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), visitorExtended);
+                .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), mockVisitorFrontEnd);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void checkoutPhoneNullTest() {
         VisitorFrontEnd mockVisitorFrontEnd = VisitorFrontEnd.builder().build();
-        VisitorExtended visitorExtended = service.visitorExtendedFromVisitorFrontEnd(mockVisitorFrontEnd);
         doNothing().when(amqpSenderService)
-                .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), visitorExtended);
+                .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), mockVisitorFrontEnd);
         service.checkout(mockVisitorFrontEnd);
         verify(amqpSenderService, times(1))
-                .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), visitorExtended);
+                .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), mockVisitorFrontEnd);
     }
 
     @Test(expected = VisitorCannotCheckoutException.class)
     public void checkoutWithoutRabbitMQTest() {
         VisitorFrontEnd mockVisitorFrontEnd = VisitorFrontEnd.builder().phoneNumber("(555)111-2233").build();
-        VisitorExtended visitorExtended = service.visitorExtendedFromVisitorFrontEnd(mockVisitorFrontEnd);
         doThrow(RuntimeException.class).when(amqpSenderService)
-                .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), visitorExtended);
+                .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), mockVisitorFrontEnd);
         service.checkout(mockVisitorFrontEnd);
         verify(amqpSenderService, times(1))
-                .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), visitorExtended);
+                .sendMessage(service.getExchangeName(), service.getCheckoutRoutingKey(), mockVisitorFrontEnd);
     }
 }
